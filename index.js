@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -19,12 +19,21 @@ async function run() {
         await client.connect();
         const inventoriesCollection = client.db('warehouseManagement').collection('inventories');
 
+        // GET inventories from mongodb
         app.get('/inventories', async (req, res) => {
             const query = {};
             const cursor = inventoriesCollection.find(query);
             const inventories = await cursor.toArray();
             res.send(inventories);
         });
+
+        // GET one inventory using specific ID
+        app.get('/inventories/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const inventory = await inventoriesCollection.findOne(query);
+            res.send(inventory)
+        })
     }
     finally {
 
