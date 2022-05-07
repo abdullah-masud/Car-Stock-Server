@@ -19,6 +19,8 @@ async function run() {
         await client.connect();
         const inventoriesCollection = client.db('warehouseManagement').collection('inventories');
 
+        const reviewsCollection = client.db('reviewsDB').collection('reviews');
+
         // GET inventories from mongodb
         app.get('/inventories', async (req, res) => {
             const query = {};
@@ -64,6 +66,14 @@ async function run() {
             const result = await inventoriesCollection.updateOne(filter, updatedStock, options);
             res.send(result);
         })
+
+        // GET reviews from mongodb
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewsCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
 
 
     }
