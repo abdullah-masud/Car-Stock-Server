@@ -50,6 +50,22 @@ async function run() {
             res.send(result);
         })
 
+        // PUT for restock and delivered
+        app.put('/inventories/:id', async (req, res) => {
+            const id = req.params.id;
+            const inventoryQuantity = req.body;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedStock = {
+                $set: {
+                    quantity: inventoryQuantity.quantity
+                }
+            }
+            const result = await inventoriesCollection.updateOne(filter, updatedStock, options);
+            res.send(result);
+        })
+
+
     }
     finally {
 
