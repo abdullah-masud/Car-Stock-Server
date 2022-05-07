@@ -21,6 +21,8 @@ async function run() {
 
         const reviewsCollection = client.db('reviewsDB').collection('reviews');
 
+        const myItemsCollection = client.db('warehouseManagement').collection('myItems');
+
         // GET inventories from mongodb
         app.get('/inventories', async (req, res) => {
             const query = {};
@@ -74,6 +76,30 @@ async function run() {
             const reviews = await cursor.toArray();
             res.send(reviews);
         });
+
+        // POST item into mongodb for myitems
+        app.post('/myitems', async (req, res) => {
+            const myItem = req.body;
+            const result = await myItemsCollection.insertOne(myItem);
+            res.send(result);
+        })
+
+        // GET myitems data
+        app.get('/myitems', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = myItemsCollection.find(query);
+            const myItems = await cursor.toArray();
+            res.send(myItems)
+        })
+
+        // DELETE item from myItems
+        app.delete('/myitems/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await myItemsCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
     }
