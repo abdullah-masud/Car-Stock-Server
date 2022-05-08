@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -18,10 +19,16 @@ async function run() {
     try {
         await client.connect();
         const inventoriesCollection = client.db('warehouseManagement').collection('inventories');
-
         const reviewsCollection = client.db('reviewsDB').collection('reviews');
 
-        const myItemsCollection = client.db('warehouseManagement').collection('myItems');
+        // AUTH 
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1d'
+            });
+            res.send({ accessToken });
+        })
 
         // GET inventories from mongodb
         app.get('/inventories', async (req, res) => {
@@ -77,18 +84,13 @@ async function run() {
             res.send(reviews);
         });
 
-        // POST item into mongodb for myitems
-        app.post('/myitems', async (req, res) => {
-            const myItem = req.body;
-            const result = await myItemsCollection.insertOne(myItem);
-            res.send(result);
-        })
 
         // GET myitems data
         app.get('/myitems', async (req, res) => {
-            const email = req.query.email;
+            const email = req.query.email
+            console.log(email);
             const query = { email: email };
-            const cursor = myItemsCollection.find(query);
+            const cursor = inventoriesCollection.find(query);
             const myItems = await cursor.toArray();
             res.send(myItems)
         })
