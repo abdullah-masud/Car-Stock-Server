@@ -102,6 +102,13 @@ async function run() {
             res.send(reviews);
         });
 
+        // POST review into backend
+        app.post('/reviews', async (req, res) => {
+            const newReview = req.body;
+            const result = await reviewsCollection.insertOne(newReview);
+            res.send(result);
+        })
+
 
         // GET myitems data
         app.get('/myitems', verifyJWT, async (req, res) => {
